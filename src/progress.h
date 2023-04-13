@@ -64,4 +64,6 @@ void screenSetup(void);
 
 void getstr(char* dest, int maxlen);
 
+void generateName(char* dest);
+
 #endif

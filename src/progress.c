@@ -33,8 +33,14 @@ void screenSetup() {
   xv_MoveCursorAndPrint("STR:       INT:", 2, 0);
   xv_MoveCursorAndPrint("DEX:       WIS:", 3, 0);
   xv_MoveCursorAndPrint("CON:       CHA:", 4, 0);
-  xv_MoveCursorAndPrint("KILL  \xc1                ]", 7, 0);
+  xv_MoveCursorAndPrint("KILLING:", 6, 0);
+  xv_MoveCursorAndPrint("KILL  \xc1                ]", 8, 0);
   xv_MoveCursorAndPrint("LEVEL \xc1                ]", 9, 0);
+
+  //  Generate a name for the first monster
+  char name[50];
+  generateName(name);
+  xv_MoveCursorAndPrint(name, 7, 1);
 }
 
 void dispUpd(struct Player* p) {
@@ -63,7 +69,7 @@ void dispUpd(struct Player* p) {
     kill_bar[i] = ' ';
   }
   kill_bar[16] = '\0';
-  xv_MoveCursorAndPrint(kill_bar, 7, 7);
+  xv_MoveCursorAndPrint(kill_bar, 8, 7);
   
   /* draw level-up bar */
   for(int i=0;i<level_completion;i++) {
@@ -113,9 +119,14 @@ void levelUp(struct Player* p) {
 void updateKill(struct Player* p) {
   p->kill++;
   if(p->kill == p->kill_max) {
+
     // kill complete:
     p->exp += randInt(3, 9);
     p->kill = 0;
+
+    char name[50];
+    generateName(name);
+    xv_MoveCursorAndPrint(name, 7, 1);
     xv_MoveCursorAndPrint("     ", 1, 20); //fixes bad things
   }
 
@@ -150,4 +161,31 @@ void printNCharsOfInt(int24_t num, size_t len, char y, char x) {  /*  Only print
   temp2[len] = 0;
   os_SetCursorPos(y, x);
   os_PutStrLine(temp2);
+}
+
+void generateName(char* dest) {
+  /* somehow create a name 
+   * for now, just have a list and choose a random element
+   *
+   * */
+  const char* names[] = {
+    "Beer Golem            ",
+    "Shambling Mound       ",
+    "Sand Elemental        ",
+    "Ice Devil             ",
+    "Demogorgon            ",
+    "Hair Elemental        ",
+    "Cheese Elemental      ",
+    "Storm Giant           ",
+    "Brontosaurus          ",
+    "Quartz Giant          ",
+    "Remorhaz              ",
+    "Beige Dragon          ",
+    "Will-o-the-wisp       ",
+    "Naga                  ",
+    "Ghoul                 ",
+    "jellyrock             "
+  };
+  unsigned index = randInt(0, 15);
+  strcpy(dest, names[index]);
 }
