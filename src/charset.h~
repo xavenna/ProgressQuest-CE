@@ -1,0 +1,11 @@
+#ifndef CHARSET_H
+#define CHARSET_H
+
+// This header is composed of macros to make working with TI's character set easier
+
+#define xv_AsciiToTics(ch) \
+  (ch == '[' ? '\xc1' : ch)
+
+
+
+#endif

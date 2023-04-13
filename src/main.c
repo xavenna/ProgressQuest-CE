@@ -1,0 +1,80 @@
+#include "progress.h"
+
+/* This is a clone of ProgressQuest, an idle game, for the TI-84+CE
+ * This version was written by xavenna.
+ *
+ * This Project is Released under the MIT License. See the LICENSE File for more details.
+ * This Program comes with ABSOLUTELY NO WARRANTY.
+ *
+ * ProgressQuest can be found here:
+ * http://progressquest.com/
+ *
+ * Inspired by this project: https://github.com/TheMostOGName/TI-PQ
+ * The original version was written in TI-BASIC, but I decided to rewrite it in c to improve it
+ *
+ */
+
+int main(void) {
+  
+  /*  DEFINE VARIABLES  */
+  
+  bool run = true;
+  uint8_t programCounter = 0;
+  uint8_t maxPC = 10;
+
+  struct Player player;
+  initPl(&player);
+
+  srandom(rtc_Time());
+  /* eventually make loading from appvar possible */
+  
+  /* SET UP SCREEN */
+  
+  os_ClrHome(); 
+  os_SetCursorPos(0, 0);
+  os_PutStrFull("ProgressQuest CE          Created by xavenna        Based on code by          TheMostOGName");
+  os_SetCursorPos(5,0);
+  os_PutStrFull("Loading...                \x5b...\x0b");
+  xv_Pause()
+  
+  kb_EnableOnLatch();
+  kb_ClearOnLatch();
+  
+  
+  /*  Setup Screen  */
+  screenSetup();
+
+
+  do {  /* Main program loop */
+    
+    /* loop initialization */
+    
+    kb_Scan();  /* get keys pressed */
+    
+    /*  only check key presses every 5 frames to avoid multiple presses */
+    if(kb_On) {  /*  the on check can happen every frame  */
+      /* break */
+      run = false;
+    }
+    
+    /* Intermediate processing */
+
+    programCounter++;
+    if(programCounter == maxPC) {
+      updateKill(&player);
+      programCounter = 0;
+    }
+    
+    /*  refresh display */
+    dispUpd(&player);
+  } while(run);
+  /*  draw the end screen  */
+  os_ClrHome();
+  xv_MoveCursorAndPrint("Goodbye...",  0,  0);
+  // eventually save player to appvar here
+  xv_Pause();
+  kb_DisableOnLatch();
+  return 0;
+}
+
+

@@ -1,0 +1,10 @@
+# directories
+obj/*
+bin/*
+
+#swap files
+*.swp
+
+# compiled files
+*.8xp
+
