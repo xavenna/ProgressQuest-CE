@@ -22,19 +22,25 @@ int main(void) {
   uint8_t programCounter = 0;
   uint8_t maxPC = 10;
 
+  os_ClrHome(); 
   struct Player player;
-  initPl(&player);
+
+  if(loadPl(&player, "PQPLAYER") != 0) {
+    /* load failure */
+    initPl(&player);
+  }
+
+
 
   srandom(rtc_Time());
   /* eventually make loading from appvar possible */
   
   /* SET UP SCREEN */
   
-  os_ClrHome(); 
   os_SetCursorPos(0, 0);
   os_PutStrFull("ProgressQuest CE          Created by xavenna        Based on code by          TheMostOGName");
   os_SetCursorPos(5,0);
-  os_PutStrFull("Loading...                \x5b...\x0b");
+  //os_PutStrFull("Loading...                \x5b...\x0b");
   xv_Pause()
   
   kb_EnableOnLatch();
@@ -71,6 +77,17 @@ int main(void) {
   /*  draw the end screen  */
   os_ClrHome();
   xv_MoveCursorAndPrint("Goodbye...",  0,  0);
+
+  uint8_t status = writePl(&player, "PQPLAYER");
+  if(status == 2) {
+    xv_MoveCursorAndPrint("Appvar not found", 2, 0);
+  }
+  else if(status == 1) {
+    xv_MoveCursorAndPrint("Write failure", 2, 0);
+  }
+  else {
+    xv_MoveCursorAndPrint("Write successful", 2, 0);
+  }
   // eventually save player to appvar here
   xv_Pause();
   kb_DisableOnLatch();

@@ -2,10 +2,8 @@
 This is an adaptation of the idle game Progress Quest, written in C for the TI84+CE
 
 ## TODO:
-Saving using Appvars\
 Make RNG Better\
-Overall Balancing\
-Improve name input UI
+Overall Balancing
 
 
 ## Credits

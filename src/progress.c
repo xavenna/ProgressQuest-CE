@@ -9,23 +9,47 @@ void initPl(struct Player* p) {
   p->Wis = randInt(1, 6) + randInt(1, 6) + randInt(1, 6);
   p->Cha = randInt(1, 6) + randInt(1, 6) + randInt(1, 6);
   p->HP_max = 2 + p->Con / 3;
-  p->MP_max = 2 + p->Int / 3; //I'm not sure how accurate this is
+  p->MP_max = 2 + p->Int / 3; //I'm not sure how accurate this is to the real game
   p->kill = 0;
   p->kill_max = 17; //this may change
   p->level = 1;
   p->exp = 0;
   p->target_exp = expToLevelUp(1);
+  xv_MoveCursorAndPrint("Enter your Name: ", 0, 0);
   char buf[80];
-  getstr(buf, sizeof(buf));
+  getstr(buf, sizeof(buf), true);
   strncpy(p->name, buf, sizeof(buf));
 }
 
-/*
-void loadPl(struct Player* p, const char* name) {
-  // load player from an appvar
-}
-*/
+uint8_t loadPl(struct Player* p, const char* name) {
+  const uint8_t handle = ti_Open(name, "r");
+  if(handle == 0) {
+    ti_Close(handle);
+    return 2;
+  }
 
+  const size_t read = ti_Read(p, sizeof(struct Player), 1, handle);
+
+  if(read != 1) {
+    return 1;
+  }
+  return 0;
+}
+
+uint8_t writePl(struct Player* p, const char* name) {
+  const uint8_t handle = ti_Open(name, "w");
+  if(handle == 0) {
+    ti_Close(handle);
+    return 2;
+  }
+
+  const size_t write = ti_Write(p, sizeof(struct Player), 1, handle);
+
+  if(write != 1) {
+    return 1;
+  }
+  return 0;
+}
 
 void screenSetup() {
   os_ClrHome();
@@ -36,6 +60,8 @@ void screenSetup() {
   xv_MoveCursorAndPrint("KILLING:", 6, 0);
   xv_MoveCursorAndPrint("KILL  \xc1                ]", 8, 0);
   xv_MoveCursorAndPrint("LEVEL \xc1                ]", 9, 0);
+  // I have to use \xc1 instead of [ because TI's character set is strange
+  // the character corresponding to [ in ascii is theta in TI's set
 
   //  Generate a name for the first monster
   char name[50];
@@ -59,7 +85,6 @@ void dispUpd(struct Player* p) {
   printNCharsOfInt(p->level, 4, 1, 7);
   printNCharsOfInt(p->target_exp - p->exp, 4, 1, 20); 
 
-  /* if enemy names are added, those will be printed at 6, 1 */
 
   /* draw killing progressbar */
   for(int i=0;i<kill;i++) {
@@ -89,9 +114,9 @@ void dispUpd(struct Player* p) {
 3dex: xx    wis: xx        3
 4con: xx    cha: xx        4
 5                          5
-6 monster-name             6
-7 kill   [                ]7
-8                          8
+6KILLING:                  6
+7 monster-name             7
+8 kill   [                ]8
 9 level  [                ]9
 +01234567890123456789012345+
 */
@@ -127,7 +152,7 @@ void updateKill(struct Player* p) {
     char name[50];
     generateName(name);
     xv_MoveCursorAndPrint(name, 7, 1);
-    xv_MoveCursorAndPrint("     ", 1, 20); //fixes bad things
+    xv_MoveCursorAndPrint("     ", 1, 20); //fixes garbage data being left over on screen
   }
 
   if(p->exp >= p->target_exp) {
@@ -135,7 +160,7 @@ void updateKill(struct Player* p) {
   }
 }
 
-void getstr(char* dest, int maxlen) {
+void getstr(char* dest, int maxlen, bool echo) {
   // this function used example code from https://ce-programming.github.io/toolchain/headers/ti/getcsc.html
   const char *chars = "\0\0\0\0\0\0\0\0\0\0\"WRMH\0\0?[VQLG\0\0:ZUPKFC\0 YTOJEB\0\0XSNIDA\0\0\0\0\0\0\0\0";
   uint8_t key, i = 0;
@@ -146,6 +171,12 @@ void getstr(char* dest, int maxlen) {
     }
     if(chars[key]) {
       dest[i++] = chars[key];
+      if(echo) {
+        char t[2];
+        t[0] = chars[key];
+        t[1] = 0;
+        os_PutStrFull(t);
+      }
     }
   }
   dest[i] = 0; /* add a null character to terminate string */
@@ -164,9 +195,9 @@ void printNCharsOfInt(int24_t num, size_t len, char y, char x) {  /*  Only print
 }
 
 void generateName(char* dest) {
-  /* somehow create a name 
+  /* create a new monster name 
    * for now, just have a list and choose a random element
-   *
+   * if there's space on the screen, add modifiers
    * */
   const char* names[] = {
     "Beer Golem            ",

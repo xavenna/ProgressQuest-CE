@@ -49,12 +49,13 @@ struct Player {
   uint24_t kill_max;
 
 }; 
-void printNCharsOfInt(int24_t num, size_t len, char y, char x);
+void printNCharsOfInt(int24_t, size_t, char, char);
 void initPl(struct Player*);
-void dispUpd(struct Player* p);
+void dispUpd(struct Player*);
 
 void updateKill(struct Player*);
-void loadPl(struct Player*, const char*);
+uint8_t loadPl(struct Player*, const char*);
+uint8_t writePl(struct Player*, const char*);
 
 void levelUp(struct Player*);
 
@@ -62,8 +63,8 @@ int expToLevelUp(int);
 
 void screenSetup(void);
 
-void getstr(char* dest, int maxlen);
+void getstr(char*, int, bool);
 
-void generateName(char* dest);
+void generateName(char*);
 
 #endif
