@@ -26,21 +26,18 @@ int main(void) {
   struct Player player;
 
   if(loadPl(&player, "PQPLAYER") != 0) {
-    /* load failure */
+    /* load failure. Create a new player */
     initPl(&player);
   }
 
 
 
   srandom(rtc_Time());
-  /* eventually make loading from appvar possible */
-  
   /* SET UP SCREEN */
   
   os_SetCursorPos(0, 0);
-  os_PutStrFull("ProgressQuest CE          Created by xavenna        Based on code by          TheMostOGName");
+  os_PutStrFull("ProgressQuest CE          Created by xavenna        Inspired by TI-PQ, by     TheMostOGName             See readme for details");
   os_SetCursorPos(5,0);
-  //os_PutStrFull("Loading...                \x5b...\x0b");
   xv_Pause()
   
   kb_EnableOnLatch();
